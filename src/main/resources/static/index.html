@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CataLog — Cat Browser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+    <header>
+        <div class="brand">
+            <h3><img src="./image/Logo.png" width="50" height="50" alt="Logo" />Cats Browser</h3>
+        </div>
+        <nav>
+            <a href="#" id="nav-browse" class="active">Home</a>
+            <a href="#" id="nav-favs">Favorites</a>
+        </nav>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+
+    </header>
+
+    <!-- Browse view -->
+    <section id="view-browse">
+        <div class="page-title">Cats Browse </div>
+        <p class="app-description" >
+            Discover and favorite adorable cats from around the world with our simple and fun browser app.
+        </p>
+
+        <div id="message" class="muted"></div>
+
+        <div id="grid" class="grid" aria-live="polite"></div>
+
+        <div id="loading" class="center hidden" role="status" aria-label="Loading">
+            <div class="loader"></div>
+        </div>
+        <div class="pagination" id="pagination">
+            <button id="prevBtn" class="btn" disabled>Previous</button>
+            <div id="pageInfo" class="muted">Page <span id="pageNum">1</span></div>
+            <button id="nextBtn" class="btn">Next</button>
+        </div>
+    </section>
+
+    <!-- Favorites view -->
+    <section id="view-favs" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="page-title">Favorites</div>
+            <button id="backToBrowse" class="btn">Back to Browse</button>
+            <button id="clearFavorites" class="btn" style="margin-left: 10px;">Clear All Favorites</button>
+
+        </div>
+
+        <div id="favMsg" class="muted"></div>
+        <div id="favGrid" class="grid" aria-live="polite"></div>
+
+        <div class="pagination">
+            <button id="prevBtnFav" class="btn" disabled>Previous</button>
+            <div class="muted">Page <span id="pageNumFav">1</span></div>
+            <button id="nextBtnFav" class="btn">Next</button>
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    <h4>Contact us:</h4>
+    <p>&copy; 2025 Cats Browse</p>
+    <p>📞 Phone: +972 999999999999</p>
+    <p>📧Email: <a href="CatsBrows@gmail.com">CatsBrows@gmail.com</a></p>
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>
