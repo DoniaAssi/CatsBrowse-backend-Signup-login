@@ -1,6 +1,7 @@
 package com.example.catsbrowsebackendsignuplogin.controller;
 
-
+import com.example.catsbrowsebackendsignuplogin.dto.FavoriteRequestDTO;
+import com.example.catsbrowsebackendsignuplogin.dto.FavoriteResponseDTO;
 import com.example.catsbrowsebackendsignuplogin.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/favorites")
+@RequestMapping("/favorite")
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
