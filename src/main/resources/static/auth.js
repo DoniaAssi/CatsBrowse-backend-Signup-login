@@ -76,7 +76,9 @@ async function authFetch(path, options = {}) {
     const res = await fetch(`${API}${path}`, { ...options, headers });
 
     if (res.status === 401) {
-        alert("يبدو أن الجلسة انتهت. سجّلي الدخول من جديد.");
+
+        alert("Your session has expired. Please log in again.");
+
         logout();
         throw new Error("Unauthorized");
     }
