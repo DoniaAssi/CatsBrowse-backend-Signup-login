@@ -1,5 +1,4 @@
 package com.example.catsbrowsebackendsignuplogin.controller;
-
 import com.example.catsbrowsebackendsignuplogin.dto.FavoriteRequestDTO;
 import com.example.catsbrowsebackendsignuplogin.dto.FavoriteResponseDTO;
 import com.example.catsbrowsebackendsignuplogin.service.FavoriteService;
