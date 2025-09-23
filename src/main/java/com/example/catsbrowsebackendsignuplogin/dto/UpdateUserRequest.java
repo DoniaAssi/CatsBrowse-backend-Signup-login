@@ -3,7 +3,7 @@ package com.example.catsbrowsebackendsignuplogin.dto;
 public class UpdateUserRequest {
     private String email;
     private String password;
-    private String rolesCsv; // مثال: "USER,ADMIN" أو "ROLE_USER,ROLE_ADMIN"
+    private String rolesCsv;
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
