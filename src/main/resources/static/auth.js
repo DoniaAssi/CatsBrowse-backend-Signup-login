@@ -24,12 +24,10 @@ async function signup(email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
-
     if (!res.ok) {
         const msg = await safeMessage(res);
         throw new Error(msg || "Signup failed");
     }
-
     const data = await res.json();
     if (data?.token) saveToken(data.token);
     return data;
@@ -41,7 +39,6 @@ async function login(email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
-
     if (res.status === 401) {
         throw new Error("UNAUTHORIZED");
     }
@@ -49,7 +46,6 @@ async function login(email, password) {
         const msg = await safeMessage(res);
         throw new Error(msg || "Login failed");
     }
-
     const data = await res.json();
     if (data?.token) saveToken(data.token);
     return data;
@@ -74,11 +70,8 @@ async function authFetch(path, options = {}) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
     const res = await fetch(`${API}${path}`, { ...options, headers });
-
     if (res.status === 401) {
-
-        alert("Your session has expired. Please log in again.");
-
+        alert("يبدو أن الجلسة انتهت. سجّلي الدخول من جديد.");
         logout();
         throw new Error("Unauthorized");
     }
@@ -105,3 +98,5 @@ window.me = me;
 window.isAuthed = isAuthed;
 window.logout = logout;
 window.authFetch = authFetch;
+window.getToken = getToken;
+window.clearToken = clearToken;

@@ -12,18 +12,70 @@
         <div class="brand">
             <h3><img src="./image/Logo.png" width="50" height="50" alt="Logo" />Cats Browser</h3>
         </div>
+
         <nav>
             <a href="#" id="nav-browse" class="active">Home</a>
             <a href="#" id="nav-favs">Favorites</a>
+            <a href="#" id="nav-admin" style="display:none">Admin</a>
         </nav>
-        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
 
+        <div>
+            <span id="whoAmI" class="muted"></span>
+            <button id="logoutBtn" class="btn" aria-label="Logout">Logout</button>
+        </div>
     </header>
 
-    <!-- Browse view -->
+    <section id="view-admin" class="hidden">
+        <div class="page-title">Admin Dashboard</div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+            <input id="adminSearch" type="search" placeholder="Search email..." class="input" style="max-width:260px;">
+            <button id="adminRefresh" class="btn">Refresh</button>
+            <span id="adminStatus" class="muted"></span>
+        </div>
+
+        <div class="card" style="overflow:auto">
+            <table id="usersTable" class="table">
+                <thead>
+                <tr>
+                    <th style="width:80px">ID</th>
+                    <th>Email</th>
+                    <th style="width:220px">Roles</th>
+                    <th style="width:200px">Actions</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <dialog id="editUserDlg" style="padding:16px; max-width:420px; border:0; border-radius:12px;">
+            <form id="editUserForm" method="dialog">
+                <h3 style="margin:0 0 12px">Edit User</h3>
+                <input type="hidden" id="editId">
+                <label class="label">Email</label>
+                <input id="editEmail" type="email" class="input" required>
+
+                <label class="label" style="margin-top:8px">New Password (optional)</label>
+                <input id="editPass" type="password" class="input" placeholder="Leave blank to keep current">
+
+                <label class="label" style="margin-top:8px">Roles</label>
+                <div style="display:flex; gap:12px; margin:6px 0 12px">
+                    <label><input type="checkbox" id="roleUser"> USER</label>
+                    <label><input type="checkbox" id="roleAdmin"> ADMIN</label>
+                </div>
+
+                <div style="display:flex; gap:8px; justify-content:flex-end">
+                    <button type="button" id="editCancel" class="btn">Cancel</button>
+                    <button type="submit" class="btn">Save</button>
+                </div>
+                <div id="editError" class="muted" style="color:#c62828; margin-top:8px"></div>
+            </form>
+        </dialog>
+    </section>
+
     <section id="view-browse">
-        <div class="page-title">Cats Browse </div>
-        <p class="app-description" >
+        <div class="page-title">Cats Browse</div>
+        <p class="app-description">
             Discover and favorite adorable cats from around the world with our simple and fun browser app.
         </p>
 
@@ -34,6 +86,7 @@
         <div id="loading" class="center hidden" role="status" aria-label="Loading">
             <div class="loader"></div>
         </div>
+
         <div class="pagination" id="pagination">
             <button id="prevBtn" class="btn" disabled>Previous</button>
             <div id="pageInfo" class="muted">Page <span id="pageNum">1</span></div>
@@ -41,13 +94,13 @@
         </div>
     </section>
 
-    <!-- Favorites view -->
-    <section id="view-favs" class="hidden">
+    <section id="view-favs" style="display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center">
             <div class="page-title">Favorites</div>
-            <button id="backToBrowse" class="btn">Back to Browse</button>
-            <button id="clearFavorites" class="btn" style="margin-left: 10px;">Clear All Favorites</button>
-
+            <div>
+                <button id="backToBrowse" class="btn">Back to Browse</button>
+                <button id="clearFavorites" class="btn" style="margin-left:10px">Clear All Favorites</button>
+            </div>
         </div>
 
         <div id="favMsg" class="muted"></div>
@@ -58,20 +111,200 @@
             <div class="muted">Page <span id="pageNumFav">1</span></div>
             <button id="nextBtnFav" class="btn">Next</button>
         </div>
-
     </section>
-
 </main>
-
 
 <footer>
     <h4>Contact us:</h4>
     <p>&copy; 2025 Cats Browse</p>
     <p>📞 Phone: +972 999999999999</p>
-    <p>📧Email: <a href="CatsBrows@gmail.com">CatsBrows@gmail.com</a></p>
+    <p>📧 Email: <a href="mailto:CatsBrows@gmail.com">CatsBrows@gmail.com</a></p>
 </footer>
 
-<script src="app.js"></script>
+<script src="auth.js"></script>
 
+<script>
+    (async () => {
+        try {
+            if (!isAuthed()) { location.href = '/login.html'; return; }
+
+            const user = await me();
+            const roles = [];
+            if (user.role) roles.push(user.role);
+            if (Array.isArray(user.roles)) roles.push(...user.roles);
+
+            const isAdmin = roles.includes('ADMIN') || roles.includes('ROLE_ADMIN');
+
+            document.getElementById('whoAmI').textContent =
+                (user.email || '') + (isAdmin ? '  •  ADMIN' : '  •  USER');
+
+            if (isAdmin) {
+                document.getElementById('nav-admin').style.display = 'inline';
+            }
+
+            document.getElementById('view-browse').style.display = 'block';
+            document.getElementById('view-favs').style.display = 'none';
+
+            document.getElementById('logoutBtn')?.addEventListener('click', logout);
+
+        } catch (e) {
+            logout();
+        }
+    })();
+</script>
+
+<script>
+    (async () => {
+        if (!isAuthed()) { location.href = "/login.html"; return; }
+
+        try {
+            const u = await me();
+            const badge = document.createElement('span');
+            badge.className = 'muted';
+            badge.textContent = `${u.email} • ${u.role.replace('ROLE_','')}`;
+
+            if (u.role === "ROLE_ADMIN") {
+                document.getElementById("view-admin").style.display = "block";
+                if (window.initAdmin) window.initAdmin();
+            } else {
+                document.getElementById("view-admin").style.display = "none";
+            }
+        } catch (e) {
+            location.href = "/login.html";
+        }
+    })();
+</script>
+
+<script>
+    function initAdmin() {
+        const tblBody = document.querySelector('#usersTable tbody');
+        const status = document.getElementById('adminStatus');
+        const search = document.getElementById('adminSearch');
+        const refreshBtn = document.getElementById('adminRefresh');
+
+        const dlg = document.getElementById('editUserDlg');
+        const f = document.getElementById('editUserForm');
+        const editId = document.getElementById('editId');
+        const editEmail = document.getElementById('editEmail');
+        const editPass = document.getElementById('editPass');
+        const roleUser = document.getElementById('roleUser');
+        const roleAdmin = document.getElementById('roleAdmin');
+        const editError = document.getElementById('editError');
+        document.getElementById('editCancel').onclick = () => dlg.close();
+
+        let allUsers = [];
+
+        async function loadUsers() {
+            status.textContent = 'Loading...';
+            try {
+                const res = await authFetch('/admin/users');
+                if (res.status === 403) throw new Error('Forbidden');
+                if (!res.ok) throw new Error('Failed to load users');
+                allUsers = await res.json();
+                render(allUsers);
+                status.textContent = `Total: ${allUsers.length}`;
+            } catch (e) {
+                status.textContent = e.message;
+            }
+        }
+
+        function render(rows) {
+            const q = (search.value || '').trim().toLowerCase();
+            const filtered = rows.filter(u => !q || (u.email || '').toLowerCase().includes(q));
+            tblBody.innerHTML = '';
+            if (filtered.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4" class="muted">No users</td>`;
+                tblBody.appendChild(tr);
+                return;
+            }
+            for (const u of filtered) {
+                const tr = document.createElement('tr');
+                const rolesCsv = (u.roles || []).join(',');
+                tr.innerHTML = `
+        <td>${u.id}</td>
+        <td>${u.email}</td>
+        <td><span class="badge">${rolesCsv || '-'}</span></td>
+        <td>
+          <button class="btn btn-sm" data-act="edit" data-id="${u.id}">Edit</button>
+          <button class="btn btn-sm" data-act="del" data-id="${u.id}" style="background:#b71c1c">Delete</button>
+        </td>
+      `;
+                tblBody.appendChild(tr);
+            }
+        }
+
+        tblBody.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-act]');
+            if (!btn) return;
+            const id = +btn.dataset.id;
+            const act = btn.dataset.act;
+
+            const u = allUsers.find(x => x.id === id);
+            if (!u) return;
+
+            if (act === 'edit') {
+                openEdit(u);
+            } else if (act === 'del') {
+                if (!confirm(`Delete user #${id} (${u.email}) ?`)) return;
+                try {
+                    const res = await authFetch(`/admin/users/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error('Delete failed');
+                    await loadUsers();
+                    alert('User deleted.');
+                } catch (err) {
+                    alert(err.message || 'Failed to delete');
+                }
+            }
+        });
+
+        function openEdit(u) {
+            editError.textContent = '';
+            editId.value = u.id;
+            editEmail.value = u.email || '';
+            editPass.value = '';
+            const roles = (u.roles || []).map(r => String(r).toUpperCase());
+            roleUser.checked = roles.includes('ROLE_USER') || roles.includes('USER');
+            roleAdmin.checked = roles.includes('ROLE_ADMIN') || roles.includes('ADMIN');
+            dlg.showModal();
+        }
+
+        f.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            editError.textContent = '';
+            const id = +editId.value;
+            const email = editEmail.value.trim();
+            const password = editPass.value;
+            const roles = [
+                roleUser.checked ? 'ROLE_USER' : null,
+                roleAdmin.checked ? 'ROLE_ADMIN' : null
+            ].filter(Boolean).join(',');
+
+            try {
+                const res = await authFetch(`/admin/users/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ email, password, rolesCsv: roles })
+                });
+                if (!res.ok) {
+                    const msg = await res.text();
+                    throw new Error(msg || 'Update failed');
+                }
+                dlg.close();
+                await loadUsers();
+                alert('User updated.');
+            } catch (err) {
+                editError.textContent = err.message || 'Update failed';
+            }
+        });
+
+        search.addEventListener('input', () => render(allUsers));
+        refreshBtn.addEventListener('click', loadUsers);
+
+        loadUsers();
+    }
+</script>
+
+<script src="app.js"></script>
 </body>
 </html>
