@@ -82,4 +82,3 @@ public class AuthController {
     public record ErrorMessage(String message) {}
     public record MeResponse(String email, String role, String roles) {}
 }
-
